@@ -30,9 +30,8 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-        // Converting roles from the model to Spring GrantedAuthorities
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
         return new UserDetailsImpl(
@@ -42,6 +41,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 authorities);
     }
+
+    public Long getId() { return id; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }

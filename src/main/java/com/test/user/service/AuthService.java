@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,11 +57,16 @@ public class AuthService {
             throw new EmailAlreadyExistsException("Email is already registered");
         }
 
+        Set<String> roles = signupRequest.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            roles = Set.of("USER");
+        }
+
         User user = User.builder()
                 .username(signupRequest.getUsername())
                 .email(signupRequest.getEmail())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .roles(signupRequest.getRoles())
+                .roles(roles)
                 .enabled(true)
                 .build();
 
