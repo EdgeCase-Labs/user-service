@@ -62,7 +62,7 @@ page.insert_image(new_rect, stream=img_bytes, keep_proportion=True, overlay=True
 # bullet separator.
 contact_y = 100.75  # baseline used by the contact line
 sep_x = 325.0
-cf_text = "  ·  codeforces.com/profile/chakrala_s"
+cf_text = "  ·  Codeforces/chakrala_s"
 # Draw with the same font/size/color as the rest of the contact line.
 contact_color = (85 / 255, 85 / 255, 85 / 255)  # 0x555555 ~= 5592405
 # Use Helvetica as a built-in fallback (Carlito isn't bundled). It blends
@@ -80,7 +80,7 @@ page.insert_text(
 
 # Compute a bounding rect for the inserted Codeforces text portion only
 # (excluding the leading separator) for the link annotation.
-just_cf = "codeforces.com/profile/chakrala_s"
+just_cf = "Codeforces/chakrala_s"
 # Width of the leading separator part (in helv 8.5)
 sep_part = "  ·  "
 sep_w = fitz.get_text_length(sep_part, fontname="helv", fontsize=8.5)
@@ -108,15 +108,17 @@ page.insert_link({
     "uri": CODEFORCES_URL,
 })
 
-# Optional: underline both links subtly so they're visually identifiable
-# as clickable. Use the same gray as the surrounding text.
-def underline(rect):
-    y = rect.y1 - 0.5
-    page.draw_line(fitz.Point(rect.x0, y), fitz.Point(rect.x1, y),
-                   color=contact_color, width=0.4)
-
-underline(linkedin_rect)
-underline(cf_rect)
+# Explicitly zero out the border on every link annotation so no PDF
+# viewer renders an underline/box around them.
+annots_xref = page.annot_xrefs()
+for entry in annots_xref:
+    xref = entry[0]
+    try:
+        doc.xref_set_key(xref, "Border", "[0 0 0]")
+        doc.xref_set_key(xref, "BS", "<< /W 0 /S /S >>")
+        doc.xref_set_key(xref, "H", "/N")
+    except Exception as e:
+        print("border tweak skipped:", e)
 
 doc.save(DST, garbage=4, deflate=True, clean=True)
 print(f"Saved {DST}")
